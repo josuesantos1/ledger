@@ -8,7 +8,6 @@ import (
 )
 
 func (c *Component) QueueConnect(queueName string, addr string) {
-	// Attempt to connect with retry logic
 	var conn *amqp.Connection
 	var err error
 
@@ -38,7 +37,6 @@ func (c *Component) QueueConnect(queueName string, addr string) {
 
 	c.QueueChan = channel
 
-	// Declare the queue to ensure it exists
 	_, err = channel.QueueDeclare(
 		queueName, // name
 		false,     // durable
