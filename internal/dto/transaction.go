@@ -14,5 +14,6 @@ type Transaction struct {
 	DebitAmount     Amount `json:"debit_amount"`
 	CreditAmount    Amount `json:"credit_amount"`
 	TransactionDate string `json:"transaction_date"`
-	AccountID       string `json:"account_id"`
+	DebitAccount    string `json:"debit_account"`
+	CreditAccount   string `json:"credit_account"`
 }
