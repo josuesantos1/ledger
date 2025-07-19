@@ -10,9 +10,9 @@ import (
 	"github.com/josuesantos1/ledger/internal/dto"
 )
 
-func Process(component *component.Component) {
+func ConsumeAccount(component *component.Component) {
 	msg, err := component.QueueChan.Consume(
-		"create-transaction",
+		"create-account",
 		"",
 		true,  // auto-acknowledge
 		false, // exclusive
@@ -26,20 +26,19 @@ func Process(component *component.Component) {
 		return
 	}
 
-	fmt.Println("Transaction consumer started, waiting for messages...")
+	fmt.Println("Account consumer started, waiting for messages...")
 
 	go func() {
 		for d := range msg {
 			fmt.Printf("Received a message: %s\n", d.Body)
 
-			var transaction *dto.Transaction
-			if err := json.Unmarshal(d.Body, &transaction); err != nil {
-				log.Printf("Failed to unmarshal transaction: %v", err)
+			var account *dto.Account
+			if err := json.Unmarshal(d.Body, &account); err != nil {
+				log.Printf("Failed to unmarshal account: %v", err)
 				continue
 			}
 
-			controller.ProcessTransaction(component, transaction)
-
+			controller.ProcessAccount(component, account)
 		}
 	}()
 }
