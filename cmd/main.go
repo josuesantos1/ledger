@@ -15,7 +15,9 @@ import (
 func main() {
 	ctx := context.Background()
 
-	component := component.Component{}
+	component := component.Component{
+		Ctx: ctx,
+	}
 
 	fmt.Println("Starting Ledger application...")
 
@@ -27,15 +29,17 @@ func main() {
 
 	// Connect to RabbitMQ
 	fmt.Println("Connecting to RabbitMQ...")
-	component.QueueConnect("create-transaction", "amqp://guest:guest@localhost:5672/")
+	component.QueueConnect("amqp://guest:guest@localhost:5672/")
+	component.QueueDeclare([]string{"create-transaction", "create-account"})
+
 	defer component.QueueConn.Close()
 	fmt.Println("RabbitMQ connected successfully")
 
-	fmt.Println("🎉 All services connected. Application is running...")
+	fmt.Println("All services connected. Application is running...")
 
-	// Start the transaction consumer
-	transaction := consumer.Transaction{}
-	transaction.Process(&component)
+	// Start the consumer
+	consumer.Process(&component)
+	consumer.ConsumeAccount(&component)
 
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
