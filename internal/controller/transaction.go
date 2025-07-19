@@ -25,8 +25,9 @@ type Entry struct {
 }
 
 func ProcessTransaction(component *component.Component, transaction *dto.Transaction) {
-	if transaction == nil {
-		log.Println("Received nil transaction, skipping processing")
+	isValid := ValidateTransaction(transaction)
+	if !isValid {
+		log.Println("Invalid transaction, skipping processing")
 		return
 	}
 
@@ -114,4 +115,35 @@ func CreateDoubleEntryTransaction(component *component.Component, transaction *d
 	}
 
 	return entryDebit, entryCredit
+}
+
+func ValidateTransaction(transaction *dto.Transaction) bool {
+	if transaction == nil {
+		log.Println("Received nil transaction, skipping validation")
+		return false
+	}
+
+	fields := map[string]any{
+		"ID":               transaction.ID,
+		"DebitAmount":      transaction.DebitAmount,
+		"CreditAmount":     transaction.CreditAmount,
+		"DebitAccount":     transaction.DebitAccount,
+		"CreditAccount":    transaction.CreditAccount,
+		"TransactionDate":  transaction.TransactionDate,
+		"TransactionType":  transaction.TransactionType,
+		"TransactionId":    transaction.TransactionId,
+		"DebitCurrency":    transaction.DebitAmount.Currency,
+		"CreditCurrency":   transaction.CreditAmount.Currency,
+		"DebitConversion":  transaction.DebitAmount.ConversionRate,
+		"CreditConversion": transaction.CreditAmount.ConversionRate,
+	}
+
+	for field, value := range fields {
+		if value == nil || value == "" {
+			log.Printf("Validation failed: %s is required", field)
+			return false
+		}
+	}
+
+	return true
 }
