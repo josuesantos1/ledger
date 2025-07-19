@@ -7,7 +7,7 @@ import (
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
-func (c *Component) QueueConnect(queueName string, addr string) {
+func (c *Component) QueueConnect(addr string) {
 	var conn *amqp.Connection
 	var err error
 
@@ -36,18 +36,23 @@ func (c *Component) QueueConnect(queueName string, addr string) {
 	}
 
 	c.QueueChan = channel
+}
 
-	_, err = channel.QueueDeclare(
-		queueName, // name
-		false,     // durable
-		false,     // delete when unused
-		false,     // exclusive
-		false,     // no-wait
-		nil,       // arguments
-	)
-	if err != nil {
-		channel.Close()
-		conn.Close()
-		panic(fmt.Sprintf("Failed to declare queue %s: %v", queueName, err))
+func (c *Component) QueueDeclare(queuesName []string) {
+	for _, queueName := range queuesName {
+		_, err := c.QueueChan.QueueDeclare(
+			queueName, // name
+			false,     // durable
+			false,     // delete when unused
+			false,     // exclusive
+			false,     // no-wait
+			nil,       // arguments
+		)
+
+		if err != nil {
+			c.QueueChan.Close()
+			c.QueueConn.Close()
+			panic(fmt.Sprintf("Failed to declare queue %s: %v", queueName, err))
+		}
 	}
 }
