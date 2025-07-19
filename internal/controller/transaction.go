@@ -1,6 +1,5 @@
 package controller
 
-// transaction controller handles for consuming transaction messages
 import (
 	"log"
 
